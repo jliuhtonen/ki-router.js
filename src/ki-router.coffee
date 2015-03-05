@@ -65,6 +65,7 @@ class KiRoutes
   previous: false
   paramVerifier: false
   renderCount: 0
+  skipRouteHandlers: []
 
   log: =>
     if @debug && window.console && console && console.log
@@ -100,6 +101,9 @@ class KiRoutes
     for candidate in @routes
       if params = candidate.route.parse(path, @paramVerifier)
         return {params: params, route: candidate.matchedRoute, fn: candidate.fn, urlPattern: candidate.urlPattern, path: path, metadata: candidate.metadata}
+
+  addSkipRouteHandler: (fn) =>
+    @skipRouteHandlers.push(fn)
 
   addPostExecutionListener: (fn) =>
     @postExecutionListeners.push(fn)
@@ -206,7 +210,7 @@ class KiRoutes
       window.location.href = @hashBaseUrl + "#!" + href
     else
       route = @find(href)
-      unless route?
+      if !route? || @skipRouteHandlers.some((handler) => handler(route, @previous))
         @log("Letting browser render url because no matching route", href)
         return
       if @disableUrlUpdate || @pushStateSupport

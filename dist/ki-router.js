@@ -66,6 +66,7 @@ limitations under the License.
       this.historyApiRouting = __bind(this.historyApiRouting, this);
       this.addExceptionListener = __bind(this.addExceptionListener, this);
       this.addPostExecutionListener = __bind(this.addPostExecutionListener, this);
+      this.addSkipRouteHandler = __bind(this.addSkipRouteHandler, this);
       this.find = __bind(this.find, this);
       this.execRoute = __bind(this.execRoute, this);
       this.exec = __bind(this.exec, this);
@@ -86,6 +87,8 @@ limitations under the License.
     KiRoutes.prototype.paramVerifier = false;
 
     KiRoutes.prototype.renderCount = 0;
+
+    KiRoutes.prototype.skipRouteHandlers = [];
 
     KiRoutes.prototype.log = function() {
       if (this.debug && window.console && console && console.log) {
@@ -154,6 +157,10 @@ limitations under the License.
           };
         }
       }
+    };
+
+    KiRoutes.prototype.addSkipRouteHandler = function(fn) {
+      return this.skipRouteHandlers.push(fn);
     };
 
     KiRoutes.prototype.addPostExecutionListener = function(fn) {
@@ -282,14 +289,17 @@ limitations under the License.
     };
 
     KiRoutes.prototype.renderUrlOrRedirect = function(href, event) {
-      var route;
+      var route,
+        _this = this;
       if (this.checkIfHashBaseUrlRedirectNeeded()) {
         this.log("Using hashbang change to trigger rendering for", href);
         this.disableEventDefault(event);
         window.location.href = this.hashBaseUrl + "#!" + href;
       } else {
         route = this.find(href);
-        if (route == null) {
+        if ((route == null) || this.skipRouteHandlers.some(function(handler) {
+          return handler(route, _this.previous);
+        })) {
           this.log("Letting browser render url because no matching route", href);
           return;
         }
