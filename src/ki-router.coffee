@@ -120,7 +120,6 @@ class KiRoutes
   fallbackRoute: false
   init: false
   initDone: false
-  updateCount: 0
 
   historyApiRouting: () =>
     @hashchangeSupport = false
@@ -163,10 +162,9 @@ class KiRoutes
   attachLocationChangeListener: =>
     if @pushStateSupport
       @addListener window, "popstate", (event) =>
-        if @updateCount > 0 # Chrome sends popstate event when rendering page, don't render unless really needed
-          href = window.location.pathname
-          @log("Rendering popstate", href)
-          @renderUrl(href)
+        href = window.location.pathname
+        @log("Rendering popstate", href)
+        @renderUrl(href)
         return
     else
       if @hashchangeSupport
@@ -221,7 +219,6 @@ class KiRoutes
     return
 
   updateUrl: (href) =>
-    @updateCount += 1
     if @pushStateSupport
       history.pushState({ }, document.title, href)
     else

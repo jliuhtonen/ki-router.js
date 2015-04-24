@@ -185,8 +185,6 @@ limitations under the License.
 
     KiRoutes.prototype.initDone = false;
 
-    KiRoutes.prototype.updateCount = 0;
-
     KiRoutes.prototype.historyApiRouting = function() {
       this.hashchangeSupport = false;
       this.transparentRouting();
@@ -235,11 +233,9 @@ limitations under the License.
       if (this.pushStateSupport) {
         this.addListener(window, "popstate", function(event) {
           var href;
-          if (_this.updateCount > 0) {
-            href = window.location.pathname;
-            _this.log("Rendering popstate", href);
-            _this.renderUrl(href);
-          }
+          href = window.location.pathname;
+          _this.log("Rendering popstate", href);
+          _this.renderUrl(href);
         });
       } else {
         if (this.hashchangeSupport) {
